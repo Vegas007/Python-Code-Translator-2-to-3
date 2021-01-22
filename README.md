@@ -10,9 +10,9 @@ A flexible and generic library, so it is possible to write your own fixers based
 
 
 ##### USING
-- Add your .py scripts to modules folder.
+- Add your .py scripts to the modules folder.
 - Run main.bat
-- Take the output files and move into your application.
+- Take the output files and move them into your application.
 
 ##### FIXERS
 
