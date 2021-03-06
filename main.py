@@ -9,6 +9,9 @@ import os
 import re
 import typing
 
+from chardet.universaldetector import UniversalDetector
+
+
 # Check python version
 if sys.version_info < (3, 7):
 	print("This script needs at least Python 3.7.\nYou're using {}.".format('.'.join(map(str, sys.version_info[:3]))))
@@ -78,6 +81,66 @@ GENERAL_REGEX_DICT: typing.Dict[str, str] = {
 	'viewkeys': 'keys',
 }
 
+"""
+Raise exception regex patterns
+Fix raising for all versions of python.
+Raises an exception with the same syntax as calling a method,
+it used to behave just like the syntax of calling an exception
+
+:example:
+	raise IOError, ('File not found')		raise IOError('File not found')
+"""
+RAISE_REGEX_DICT: typing.Dict[str, str] = {
+	r'raise\s+(.*?),\s+(.*)': r'raise \1(\2)',
+}
+
+"""
+Exec regex patterns
+Fix exec calls for all versions of python.
+
+
+:example:
+	exec code in foo.__dict__		exec(code, foo.__dict__)
+"""
+EXEC_REGEX_DICT: typing.Dict[str, str] = {
+	r'exec\s+(.*?)in\s+(.*)': r'exec(\1, \2)',
+}
+
+"""
+Lib modules regex patterns
+Fix renamed Lib modules names changed in python 3
+
+:examples:
+	__builtin__     builtins
+"""
+LIB_MODULES_REGEX_DICT: typing.Dict[str, str] = {
+	r'__builtin__': r'builtins',
+}
+
+
+"""
+Apply regex patterns
+Fix calls for methods called from object using apply for python 3
+
+
+:example:
+	apply(method, args)		method(*args)
+"""
+APPLY_REGEX_DICT: typing.Dict[str, str] = {
+	r'apply\((.*?),(.*?)\)': r'\1(*\2)',
+}
+
+# List for all the regex dicts of changes
+regexDictList = (
+	REGEX_PRINT_DICT,
+	EXCEPT_REGEX_DICT,
+	RAISE_REGEX_DICT,
+	GENERAL_REGEX_DICT,
+	EXEC_REGEX_DICT,
+	LIB_MODULES_REGEX_DICT,
+	APPLY_REGEX_DICT
+)
+
 
 class CodeTranslatorPy2To3:
 	def __init__(self) -> typing.NoReturn:
@@ -136,7 +199,11 @@ class CodeTranslatorPy2To3:
 		A method that opening all modules and doing specific actions.
 		"""
 		for moduleName in self.moduleNameSet:
-			with open(moduleName, 'r+') as fileStream:
+			detected_encoding = detect_encoding(moduleName)
+
+			print(f"Processing {moduleName} ({detected_encoding})")
+
+			with open(moduleName, 'r+', encoding=detected_encoding) as fileStream:
 				# Store the content of the file
 				fileContent: str = fileStream.read()
 				# Sets the file's current position at the offset, the position of the read/write pointer within the file
@@ -145,11 +212,23 @@ class CodeTranslatorPy2To3:
 				fileStream.truncate()
 
 				# Process regex patterns
-				for regexDict in (REGEX_PRINT_DICT, EXCEPT_REGEX_DICT, GENERAL_REGEX_DICT):
+				for regexDict in regexDictList:
 					fileContent = self.process_function(regexDict, fileContent)
 
 				# Rewrite the processed content of the file
 				fileStream.write(fileContent)
+
+
+def detect_encoding(fileName):
+	detector = UniversalDetector()
+
+	for line in open(fileName, 'rb'):
+		detector.feed(line)
+		if detector.done:
+			break
+
+	detector.close()
+	return detector.result["encoding"]
 
 
 if __name__ == '__main__':

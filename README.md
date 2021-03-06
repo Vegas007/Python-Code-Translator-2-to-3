@@ -35,12 +35,14 @@ A flexible and generic library, so it is possible to write your own fixers based
 Similarly, dict.viewitems(), dict.viewkeys() and dict.viewvalues() are converted respectively to dict.items(), dict.keys() and dict.values(). 
 It also wraps existing usages of dict.items(), dict.keys(), and dict.values() in a call to list.
 
-###### exec - TODO
+###### exec 
 - Converts the exec statement to the exec() function.
 
-###### apply - TODO
+###### apply
 - Removes usage of apply(). For example apply(function, *args, **kwargs) is converted to function(*args, **kwargs).
 
-###### raise - TODO
+###### raise
 - Converts raise E, V to raise E(V), and raise E, V, T to raise E(V).with_traceback(T). If E is a tuple, the translation will be incorrect because substituting tuples for exceptions has been removed in 3.0.
 
+###### library module names
+- Renames the old library names that were renamed with the release of new versions, respecting the latest possible
