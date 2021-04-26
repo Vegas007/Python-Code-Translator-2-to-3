@@ -11,6 +11,7 @@ import typing
 
 from chardet.universaldetector import UniversalDetector
 
+# test
 
 # Check python version
 if sys.version_info < (3, 7):
