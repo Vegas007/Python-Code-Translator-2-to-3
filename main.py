@@ -69,11 +69,11 @@ Fix general changes made in python3.
 
 :examples:
 	for i in xrange(100)		for i in range(100
-	if dict.has_key(100)		if dict.__contains__(100)
+	if dict.has_key(100)		if 100 in dict
 """
 GENERAL_REGEX_DICT: typing.Dict[str, str] = {
 	'xrange': 'range',
-	'has_key': '__contains__',
+	r'if\s+([\w.]+)\.has_key\(([^)]+)\)': r'if \2 in \1',
 	'iteritems': 'items',
 	'viewitems': 'items',
 	'itervalues': 'values',
