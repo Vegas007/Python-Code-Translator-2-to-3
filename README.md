@@ -28,7 +28,7 @@ A flexible and generic library, so it is possible to write your own fixers based
 - Renames xrange() to range() and wraps existing range() calls with list.
 
 ###### has_key
-- Changed dict.has_key(key) to dict..__contains____(key)
+- Changed dict.has_key(key) to key in dict
 
 ###### dict
 - Fixes dictionary iteration methods. dict.iteritems() is converted to dict.items(), dict.iterkeys() to dict.keys(), and dict.itervalues() to dict.values(). 
